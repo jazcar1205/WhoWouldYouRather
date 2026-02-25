@@ -6,6 +6,10 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
     <script>
+        let currentQuestionId = null;
+        let urlA = null;
+        let urlB = null;
+
         //1. Click on generate option
         function getQuestion(){
             console.log("Generating a question...");
@@ -21,13 +25,65 @@
                     $("#optionA").text(data.optionA);
                     $("#optionB").text(data.optionB);
 
+                    $("#urlA").attr("src", data.optionA_url);
+                    $("#urlB").attr("src", data.optionB_url);
+
+                    currentQuestionId = data.id;
+                    urlA = data.optionA_url;
+                    urlB = data.optionB_url;
+
                     // Log inside success (correct place)
                     console.log("Text:", data.text);
                     console.log("Option One:", data.optionA);
                     console.log("Option Two:", data.optionB);
+
+                    $(".optionA, .optionB").prop("disabled", false);
+                    $("#barA, #barB").css("width", "0%");
+                    $("#percentA, #percentB").text("");
+                    $(".optionA, .optionB").prop("disabled", false);
                 },
                 error: function(err) {
                     console.error("Error:", err);
+                }
+            });
+        }
+
+        function voting(choice){
+
+            console.log("Voting on question:", currentQuestionId);
+            console.log("Choice:", choice);
+
+            $.ajax({
+                url: "/vote",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    id: currentQuestionId,
+                    option: choice
+                }),
+                success: function(response){
+                    console.log("Vote recorded:", response);
+
+                    if(response.percentages){
+                        let percentA = response.percentages.A;
+                        let percentB = response.percentages.B;
+
+                        // Update bar widths
+                        $("#barA").css("width", percentA + "%");
+                        $("#barB").css("width", percentB + "%");
+
+                        // Update percentage text
+                        $("#percentA").text(percentA + "%");
+                        $("#percentB").text(percentB + "%");
+                    }
+
+                    // Disable buttons after voting
+                    $(".optionA, .optionB").prop("disabled", true);
+
+
+                },
+                error: function(err){
+                    console.error("Vote error:", err);
                 }
             });
         }
@@ -81,6 +137,53 @@
             color: white;
         }
 
+        .optionsContainer {
+            display: flex;
+            justify-content: center;
+            gap: 40px; /* space between A and B */
+            margin-top: 30px;
+        }
+
+        .optionBlock {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .optionImage {
+            width: 150px;
+            margin-top: 15px;
+            border-radius: 8px;
+        }
+
+        .barContainer {
+            width: 180px;
+            height: 20px;
+            background-color: #ddd;
+            border-radius: 10px;
+            margin-top: 10px;
+            position: relative;
+        }
+
+        .bar {
+            height: 100%;
+            width: 0%; /* start empty */
+            border-radius: 10px;
+            background-color: #8D6E63;
+            transition: width 0.5s ease;
+        }
+
+        .percentText {
+            position: absolute;
+            width: 100%;
+            text-align: left;
+            top: 0;
+            line-height: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+        }
+
         footer {
             margin-top: 40px;
             padding: 20px;
@@ -103,11 +206,29 @@
         <h2 id="questionDisplay">Click Generate to Start</h2>
 
         <button style = text-align:center; class="generateQuest", onclick="getQuestion()"  > Generate Question </button>
-
         <br>
-        <button class = "optionA" id="optionA">Option A</button>
+        <div class="optionsContainer">
 
-        <button class = "optionB" id="optionB">Option B</button>
+            <div class = "optionBlock">
+                <button class = "optionA" id="optionA" onclick="voting('A')">Option A</button>
+                <img id="urlA" class="optionImage">
+                <div class="barContainer">
+                    <div id="barA" class="bar"></div>
+                    <span id="percentA" class="percentText"></span>
+                </div>
+            </div>
+
+            <div class="optionBlock">
+                <button class = "optionB"  id="optionB" onclick="voting('B')">Option B</button>
+                <img id="urlB" class="optionImage">
+                <div class="barContainer">
+                    <div id="barB" class="bar"></div>
+                    <span id="percentB" class="percentText"></span>
+                </div>
+
+            </div>
+
+        </div>
     </div>
 </main>
 
