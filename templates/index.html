@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>What Would You Rather?</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+    <script>
+        //1. Click on generate option
+        function getQuestion(){
+            console.log("Generating a question...");
+             $.ajax({
+                url: "/genQuestion",
+                method: "GET",
+                dataType: "json",
+                success: function(data) {
+
+                    // Update UI
+                    $("#id").text(data.id);
+                    $("#questionDisplay").text(data.text);
+                    $("#optionA").text(data.optionA);
+                    $("#optionB").text(data.optionB);
+
+                    // Log inside success (correct place)
+                    console.log("Text:", data.text);
+                    console.log("Option One:", data.optionA);
+                    console.log("Option Two:", data.optionB);
+                },
+                error: function(err) {
+                    console.error("Error:", err);
+                }
+            });
+        }
+
+    </script>
+
+    <style>
+
+        body {
+            margin: 0;
+            font-family: Garamond, serif;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+
+        header {
+            background-color: #5D4037;
+            color: white;
+            padding: 20px;
+        }
+
+        main {
+            padding: 40px 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            margin: 20px auto;
+            width: 400px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .optionA {
+            background-color: #8D6E63;
+            color: white;
+        }
+
+        .optionB {
+            background-color: #8D6E63;
+            color: white;
+        }
+
+        footer {
+            margin-top: 40px;
+            padding: 20px;
+            font-size: 14px;
+            color: gray;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>What Would You Rather?</h1>
+
+</header>
+
+<main>
+    <div class="card">
+
+        <h2 id="questionDisplay">Click Generate to Start</h2>
+
+        <button style = text-align:center; class="generateQuest", onclick="getQuestion()"  > Generate Question </button>
+
+        <br>
+        <button class = "optionA" id="optionA">Option A</button>
+
+        <button class = "optionB" id="optionB">Option B</button>
+    </div>
+</main>
+
+<footer>
+    Created February 23, 2026 – Jazmin Carlos
+</footer>
+
+</body>
+</html>
