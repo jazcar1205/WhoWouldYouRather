@@ -19,7 +19,6 @@
                 dataType: "json",
                 success: function(data) {
 
-                    // Update UI
                     $("#id").text(data.id);
                     $("#questionDisplay").text(data.text);
                     $("#optionA").text(data.optionA);
@@ -32,7 +31,6 @@
                     urlA = data.optionA_url;
                     urlB = data.optionB_url;
 
-                    // Log inside success (correct place)
                     console.log("Text:", data.text);
                     console.log("Option One:", data.optionA);
                     console.log("Option Two:", data.optionB);
@@ -68,16 +66,13 @@
                         let percentA = response.percentages.A;
                         let percentB = response.percentages.B;
 
-                        // Update bar widths
                         $("#barA").css("width", percentA + "%");
                         $("#barB").css("width", percentB + "%");
 
-                        // Update percentage text
                         $("#percentA").text(percentA + "%");
                         $("#percentB").text(percentB + "%");
                     }
 
-                    // Disable buttons after voting
                     $(".optionA, .optionB").prop("disabled", true);
 
 
@@ -152,6 +147,7 @@
 
         .optionImage {
             width: 150px;
+            height: 200px ;
             margin-top: 15px;
             border-radius: 8px;
         }
