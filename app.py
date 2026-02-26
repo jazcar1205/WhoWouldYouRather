@@ -8,6 +8,7 @@ client = MongoClient(uri)
 
 db = client["WouldRather"]
 collection = db["Choices"]
+votes_collection = db["votes"]
 app = Flask(__name__)
 
 #data = [
@@ -56,13 +57,13 @@ app = Flask(__name__)
 #   },
 #]
 
-votes = {
-    0:{"A": 0 ,"B": 0},
-    1:{"A": 0 ,"B": 0},
-    2:{"A": 0 ,"B": 0},
-    3:{"A": 0 ,"B": 0},
-    4:{"A": 0 ,"B": 0},
-}
+#votes = {
+#    0:{"A": 0 ,"B": 0},
+#    1:{"A": 0 ,"B": 0},
+#    2:{"A": 0 ,"B": 0},
+#    3:{"A": 0 ,"B": 0},
+#    4:{"A": 0 ,"B": 0},
+#}
 @app.route("/genQuestion")
 def gen_question():
     num = random.randint(0, 4)
@@ -76,34 +77,41 @@ def vote():
     question_id = int(data.get("id"))
     option = data.get("option")
 
-    if question_id not in votes:
+    if option not in ("A", "B"):
         return jsonify({"error": "Invalid id"}), 400
 
-    if option not in ("A", "B"):
-        return jsonify({"error": "Invalid option"}), 400
+    field_name = "OptionA" if option == "A" else "OptionB"
 
-    votes[question_id][option] += 1
+    result = votes_collection.update_one(
+        {"id": question_id},
+        {"$inc": {field_name: 1}}
+    )
+
+    if result.matched_count == 0:
+        return jsonify({"error": "Invalid question id"}), 400
+
+    vote_doc = votes_collection.find_one({"id": question_id}, {"_id": 0})
+
+    total_votes = vote_doc["OptionA"] + vote_doc["OptionB"]
+
+    if total_votes == 0:
+        percent_A = 0
+        percent_B = 0
+    else:
+        percent_A = round((vote_doc["OptionA"] / total_votes) * 100, 1)
+        percent_B = round((vote_doc["OptionB"] / total_votes) * 100, 1)
 
     return jsonify({
         "status": "success",
-        "votes": votes[question_id],
-        "percentages": percentage(question_id)
+        "votes": {
+            "A": vote_doc["OptionA"],
+            "B": vote_doc["OptionB"]
+        },
+        "percentages": {
+            "A": percent_A,
+            "B": percent_B
+        }
     })
-
-def percentage(question_id):
-    if question_id not in votes:
-        return {"error": "Invalid question id"}
-
-    vote_counts = votes[question_id]
-    total_votes = vote_counts["A"] + vote_counts["B"]
-
-    if total_votes == 0:
-        return {"A": 0, "B": 0}
-
-    percent_A = (vote_counts["A"] / total_votes) * 100
-    percent_B = (vote_counts["B"] / total_votes) * 100
-
-    return {"A": round(percent_A, 1), "B": round(percent_B, 1)}
 
 @app.route("/welcome")
 def welcome():

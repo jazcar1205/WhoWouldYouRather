@@ -9,7 +9,7 @@ client = MongoClient(uri)
 
 # Select database and collection
 db = client["WouldRather"]
-collection = db["Choices"]
+collection = db["votes"]
 
 # --- WRITE (Insert) ---
 #collection.insert_one({
@@ -32,7 +32,7 @@ collection = db["Choices"]
 
 #collection.insert_one({
 #        "id" : 3,
-#       "text" : " Sleep In or Wake up Early  ",
+#       "text" : " Sleep In or Wake up Early",
 #       "optionA" : " Sleep In ",
 #       "optionA_url" : "https://domf5oio6qrcr.cloudfront.net/medialibrary/9909/GettyImages-149040090.jpg",
 #        "optionB" : " Wake Up Early ",
@@ -41,14 +41,16 @@ collection = db["Choices"]
 
 #collection.insert_one({
 #       "id" : 4,
-#        "text" : "Windows or Apple   ",
+#        "text" : "Windows or Apple",
 #        "optionA" : " Windows ",
 #        "optionA_url" : "https://www.thespectrum.com/gcdn/media/2021/07/03/USATODAY/usatsports/Reviewed.com-RvEW-28149-Hero-1080-16-9.jpg",
 #        "optionB" : " Apple ",
 #    })
 #print("Document inserted!")
 
+#print("Document inserted!")
+
 # --- READ (Find one) ---
-num = random.randint(0, 4)
-doc = collection.find_one({"id": num })
-print("Document found:", doc)
+#num = random.randint(0, 5)
+#doc = collection.find_one({"id": 1 })
+#print("Document found:", doc)
