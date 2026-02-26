@@ -66,7 +66,7 @@ app = Flask(__name__)
 #}
 @app.route("/genQuestion")
 def gen_question():
-    num = random.randint(0, 4)
+    num = random.randint(0, 6)
     doc = collection.find_one({"id": num}, {"_id": 0})
     return jsonify(doc)
 
