@@ -66,19 +66,30 @@ app = Flask(__name__)
 #}
 @app.route("/genQuestion")
 def gen_question():
-    num = random.randint(0, 6)
+    count = collection.count_documents({})
+    if count == 0:
+        return jsonify({"error": "No questions found"}), 500
+
+    num = random.randint(0, count - 1)
     doc = collection.find_one({"id": num}, {"_id": 0})
+
+    if not doc:
+        return jsonify({"error": "Question not found"}), 404
+
     return jsonify(doc)
 
 @app.route("/vote", methods=["POST"])
 def vote():
     data = request.get_json()
 
+    if not data or data.get("id") is None:
+        return jsonify({"error": "Missing question id"}), 400
+
+    if data.get("option") not in ("A", "B"):
+        return jsonify({"error": "Invalid option"}), 400
+
     question_id = int(data.get("id"))
     option = data.get("option")
-
-    if option not in ("A", "B"):
-        return jsonify({"error": "Invalid id"}), 400
 
     field_name = "OptionA" if option == "A" else "OptionB"
 
